@@ -1,0 +1,672 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>TODDLER LETTERS</title>
+    <style>
+      :root {
+        color-scheme: dark;
+        --bg: #080a18;
+        --bg-2: #10133a;
+        --text: #fff8df;
+        --muted: rgba(255, 248, 223, 0.72);
+        --panel: rgba(8, 10, 24, 0.7);
+        --panel-border: rgba(255, 255, 255, 0.18);
+        --pink: #ff70b8;
+        --yellow: #ffe66d;
+        --blue: #7bdff2;
+        --green: #b7f77a;
+        --orange: #ffb347;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      html,
+      body {
+        width: 100%;
+        height: 100%;
+        margin: 0;
+        overflow: hidden;
+        background:
+          radial-gradient(circle at 18% 18%, rgba(123, 223, 242, 0.16), transparent 32%),
+          radial-gradient(circle at 82% 20%, rgba(255, 112, 184, 0.14), transparent 28%),
+          radial-gradient(circle at 52% 86%, rgba(183, 247, 122, 0.12), transparent 32%),
+          linear-gradient(160deg, var(--bg), var(--bg-2) 58%, #09091b);
+        color: var(--text);
+        font-family:
+          "Comic Sans MS",
+          "Chalkboard SE",
+          "Marker Felt",
+          "SF Pro Rounded",
+          "Avenir Next Rounded",
+          ui-rounded,
+          "Nunito",
+          system-ui,
+          sans-serif;
+        text-transform: uppercase;
+        user-select: none;
+        -webkit-user-select: none;
+        touch-action: manipulation;
+      }
+
+      body::before,
+      body::after {
+        position: fixed;
+        inset: -12vmax;
+        pointer-events: none;
+        content: "";
+        background-image:
+          radial-gradient(circle, rgba(255, 255, 255, 0.72) 0 2px, transparent 2.5px),
+          radial-gradient(circle, rgba(255, 230, 109, 0.62) 0 3px, transparent 3.5px),
+          radial-gradient(circle, rgba(123, 223, 242, 0.56) 0 2.5px, transparent 3px);
+        background-position:
+          0 0,
+          34px 48px,
+          82px 20px;
+        background-size:
+          118px 118px,
+          172px 172px,
+          238px 238px;
+        opacity: 0.72;
+        animation: drift 24s linear infinite;
+      }
+
+      body::after {
+        filter: blur(1px);
+        opacity: 0.32;
+        animation-duration: 38s;
+        animation-direction: reverse;
+      }
+
+      main {
+        position: relative;
+        width: 100vw;
+        height: 100dvh;
+        min-height: 420px;
+        isolation: isolate;
+      }
+
+      .stage {
+        position: absolute;
+        inset: 0;
+        overflow: hidden;
+        cursor: pointer;
+      }
+
+      .topbar {
+        position: fixed;
+        z-index: 20;
+        top: max(16px, env(safe-area-inset-top));
+        right: max(16px, env(safe-area-inset-right));
+        left: max(16px, env(safe-area-inset-left));
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 16px;
+        pointer-events: none;
+      }
+
+      .brand {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        min-width: 0;
+        color: rgba(255, 248, 223, 0.8);
+        font-size: clamp(0.86rem, 2vw, 1rem);
+        font-weight: 800;
+        letter-spacing: 0;
+        text-shadow: 0 2px 12px rgba(0, 0, 0, 0.45);
+      }
+
+      .spark {
+        width: 13px;
+        height: 13px;
+        border-radius: 999px;
+        background: var(--yellow);
+        box-shadow:
+          0 0 0 7px rgba(255, 230, 109, 0.12),
+          0 0 28px rgba(255, 230, 109, 0.8);
+      }
+
+      .counter,
+      .help-button {
+        pointer-events: auto;
+        border: 1px solid var(--panel-border);
+        background: rgba(255, 255, 255, 0.08);
+        color: var(--text);
+        box-shadow: 0 12px 36px rgba(0, 0, 0, 0.18);
+        backdrop-filter: blur(16px);
+      }
+
+      .counter {
+        padding: 10px 13px;
+        border-radius: 999px;
+        font-size: 0.92rem;
+        font-weight: 850;
+        white-space: nowrap;
+      }
+
+      .help-button {
+        display: grid;
+        width: 42px;
+        height: 42px;
+        padding: 0;
+        border-radius: 50%;
+        place-items: center;
+        font: inherit;
+        font-size: 1.12rem;
+        font-weight: 950;
+      }
+
+      .hint {
+        position: fixed;
+        z-index: 10;
+        right: 24px;
+        bottom: max(20px, env(safe-area-inset-bottom));
+        left: 24px;
+        display: flex;
+        justify-content: center;
+        pointer-events: none;
+        transition:
+          opacity 500ms ease,
+          transform 500ms ease;
+      }
+
+      .hint.is-hidden {
+        opacity: 0;
+        transform: translateY(14px);
+      }
+
+      .hint-inner {
+        max-width: min(720px, 100%);
+        padding: 12px 17px;
+        border: 1px solid var(--panel-border);
+        border-radius: 999px;
+        background: var(--panel);
+        color: var(--muted);
+        box-shadow: 0 18px 60px rgba(0, 0, 0, 0.24);
+        font-size: clamp(0.88rem, 2vw, 1rem);
+        font-weight: 800;
+        line-height: 1.3;
+        text-align: center;
+        backdrop-filter: blur(18px);
+      }
+
+      .burst {
+        position: absolute;
+        z-index: 5;
+        left: var(--x);
+        top: var(--y);
+        display: grid;
+        width: var(--size);
+        height: var(--size);
+        align-items: center;
+        justify-items: center;
+        color: var(--color);
+        font-size: var(--font-size);
+        font-weight: 1000;
+        line-height: 1;
+        text-align: center;
+        text-transform: uppercase;
+        text-shadow:
+          0 6px 0 rgba(0, 0, 0, 0.12),
+          0 22px 52px rgba(0, 0, 0, 0.38);
+        transform: translate(-50%, -50%) scale(0.2) rotate(var(--tilt));
+        animation: pop-fade var(--life) cubic-bezier(0.2, 1.15, 0.25, 1) forwards;
+        will-change: transform, opacity;
+      }
+
+      .burst::before {
+        position: absolute;
+        z-index: -1;
+        width: 78%;
+        height: 78%;
+        border-radius: 50%;
+        background: color-mix(in srgb, var(--color), transparent 78%);
+        box-shadow:
+          0 0 0 12px color-mix(in srgb, var(--color), transparent 90%),
+          0 0 52px color-mix(in srgb, var(--color), transparent 56%);
+        content: "";
+      }
+
+      .bubble {
+        position: absolute;
+        z-index: 2;
+        left: var(--x);
+        top: var(--y);
+        width: var(--size);
+        height: var(--size);
+        border: 2px solid rgba(255, 255, 255, 0.38);
+        border-radius: 999px;
+        background: radial-gradient(circle at 35% 28%, rgba(255, 255, 255, 0.58), rgba(255, 255, 255, 0.04) 38%, transparent 70%);
+        transform: translate(-50%, -50%) scale(0.1);
+        animation: bubble-pop var(--life) ease-out forwards;
+        pointer-events: none;
+      }
+
+      .label {
+        position: absolute;
+        z-index: 6;
+        left: var(--x);
+        top: calc(var(--y) + var(--offset));
+        max-width: min(340px, 72vw);
+        padding: 8px 14px;
+        border-radius: 999px;
+        background: rgba(8, 10, 24, 0.5);
+        color: rgba(255, 248, 223, 0.86);
+        font-size: clamp(0.84rem, 2.8vw, 1.1rem);
+        font-weight: 950;
+        line-height: 1.1;
+        text-align: center;
+        text-transform: uppercase;
+        transform: translate(-50%, -50%) scale(0.9);
+        animation: label-fade 1500ms ease forwards;
+        backdrop-filter: blur(10px);
+      }
+
+      .panel {
+        position: fixed;
+        z-index: 30;
+        inset: auto 16px max(18px, env(safe-area-inset-bottom)) auto;
+        display: none;
+        width: min(380px, calc(100vw - 32px));
+        padding: 18px;
+        border: 1px solid var(--panel-border);
+        border-radius: 8px;
+        background: rgba(8, 10, 24, 0.86);
+        box-shadow: 0 22px 70px rgba(0, 0, 0, 0.34);
+        backdrop-filter: blur(20px);
+      }
+
+      .panel.is-open {
+        display: block;
+      }
+
+      .panel h2 {
+        margin: 0 0 8px;
+        font-size: 1rem;
+      }
+
+      .panel p {
+        margin: 0 0 14px;
+        color: var(--muted);
+        font-size: 0.92rem;
+        line-height: 1.45;
+      }
+
+      .panel-actions {
+        display: flex;
+        gap: 10px;
+      }
+
+      .panel button {
+        min-height: 40px;
+        padding: 0 13px;
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        border-radius: 8px;
+        background: rgba(255, 255, 255, 0.1);
+        color: var(--text);
+        font: inherit;
+        font-size: 0.9rem;
+        font-weight: 850;
+      }
+
+      @keyframes drift {
+        from {
+          transform: translate3d(0, 0, 0) rotate(0deg);
+        }
+
+        to {
+          transform: translate3d(6vmax, 4vmax, 0) rotate(1turn);
+        }
+      }
+
+      @keyframes pop-fade {
+        0% {
+          opacity: 0;
+          filter: blur(8px);
+          transform: translate(-50%, -50%) scale(0.12) rotate(var(--tilt));
+        }
+
+        14% {
+          opacity: 1;
+          filter: blur(0);
+          transform: translate(-50%, -50%) scale(1.14) rotate(var(--tilt));
+        }
+
+        24% {
+          transform: translate(-50%, -50%) scale(0.98) rotate(var(--tilt));
+        }
+
+        78% {
+          opacity: 1;
+        }
+
+        100% {
+          opacity: 0;
+          filter: blur(2px);
+          transform: translate(-50%, calc(-50% - 28px)) scale(0.82) rotate(calc(var(--tilt) * -0.4));
+        }
+      }
+
+      @keyframes bubble-pop {
+        0% {
+          opacity: 0;
+          transform: translate(-50%, -50%) scale(0.1);
+        }
+
+        18% {
+          opacity: 0.9;
+        }
+
+        100% {
+          opacity: 0;
+          transform: translate(-50%, -50%) scale(1.25);
+        }
+      }
+
+      @keyframes label-fade {
+        0% {
+          opacity: 0;
+          transform: translate(-50%, -35%) scale(0.82);
+        }
+
+        18%,
+        72% {
+          opacity: 1;
+          transform: translate(-50%, -50%) scale(1);
+        }
+
+        100% {
+          opacity: 0;
+          transform: translate(-50%, -70%) scale(0.92);
+        }
+      }
+
+      @media (max-width: 560px) {
+        .topbar {
+          align-items: flex-start;
+        }
+
+        .brand {
+          max-width: 48vw;
+        }
+
+        .hint {
+          right: 12px;
+          left: 12px;
+        }
+
+        .hint-inner {
+          border-radius: 8px;
+        }
+      }
+
+      @media (prefers-reduced-motion: reduce) {
+        *,
+        *::before,
+        *::after {
+          animation-duration: 1ms !important;
+          animation-iteration-count: 1 !important;
+          scroll-behavior: auto !important;
+        }
+
+        body::before,
+        body::after {
+          animation: none !important;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <main aria-label="TODDLER KEYBOARD PLAY AREA">
+      <section class="stage" id="stage" aria-live="polite" aria-label="PRESS LETTERS OR NUMBERS TO MAKE PLAYFUL ANIMATIONS"></section>
+
+      <div class="topbar">
+        <div class="brand" aria-hidden="true"><span class="spark"></span><span>TODDLER LETTERS</span></div>
+        <div style="display: flex; gap: 10px; align-items: center">
+          <div class="counter" id="counter">KEYS SMASHED: 0</div>
+          <button class="help-button" id="helpButton" type="button" aria-label="OPEN PARENT NOTES">I</button>
+        </div>
+      </div>
+
+      <div class="hint" id="hint">
+        <div class="hint-inner">PRESS A LETTER ONCE FOR THE LETTER, TWICE FOR MATCHING EMOJI WORDS. PRESS A NUMBER TWICE TO COUNT WITH ONE EMOJI AT A TIME.</div>
+      </div>
+
+      <aside class="panel" id="panel" aria-label="PARENT NOTES">
+        <h2>PARENT NOTES</h2>
+        <p>
+          LETTERS SHOW THEMSELVES FIRST, THEN TODDLER-FRIENDLY EMOJI WORDS THAT START WITH THAT LETTER. NUMBERS SHOW THE NUMERAL FIRST, THEN COUNT OUT A MATCHING GROUP.
+        </p>
+        <div class="panel-actions">
+          <button id="fullscreenButton" type="button">FULLSCREEN</button>
+          <button id="closePanelButton" type="button">CLOSE</button>
+        </div>
+      </aside>
+    </main>
+
+    <script>
+      const stage = document.querySelector("#stage");
+      const counter = document.querySelector("#counter");
+      const hint = document.querySelector("#hint");
+      const panel = document.querySelector("#panel");
+      const helpButton = document.querySelector("#helpButton");
+      const closePanelButton = document.querySelector("#closePanelButton");
+      const fullscreenButton = document.querySelector("#fullscreenButton");
+
+      const colors = ["#ffe66d", "#ff70b8", "#7bdff2", "#b7f77a", "#ffb347", "#cdb4ff", "#ff8fab"];
+      const letterEmoji = {
+        A: [["🍎", "apple"], ["🐜", "ant"], ["🚑", "ambulance"], ["🥑", "avocado"]],
+        B: [["🐻", "bear"], ["🚌", "bus"], ["🍌", "banana"], ["🦋", "butterfly"]],
+        C: [["🐱", "cat"], ["🚗", "car"], ["🥕", "carrot"], ["🌽", "corn"]],
+        D: [["🐶", "dog"], ["🦆", "duck"], ["🦕", "dinosaur"], ["🍩", "donut"]],
+        E: [["🐘", "elephant"], ["🥚", "egg"], ["🦅", "eagle"], ["🌎", "earth"]],
+        F: [["🚒", "firetruck"], ["🐸", "frog"], ["🐟", "fish"], ["🍟", "fries"]],
+        G: [["🦒", "giraffe"], ["🍇", "grapes"], ["🪿", "goose"], ["🎸", "guitar"]],
+        H: [["🏠", "house"], ["🐴", "horse"], ["❤️", "heart"], ["🍯", "honey"]],
+        I: [["🍦", "ice cream"], ["🧊", "ice"], ["🦎", "iguana"], ["🏝️", "island"]],
+        J: [["🪼", "jellyfish"], ["🧃", "juice"], ["🧥", "jacket"], ["🤹", "juggler"]],
+        K: [["🔑", "key"], ["🥝", "kiwi"], ["🪁", "kite"], ["🐨", "koala"]],
+        L: [["🦁", "lion"], ["🍋", "lemon"], ["🦎", "lizard"], ["🍭", "lollipop"]],
+        M: [["🐵", "monkey"], ["🌙", "moon"], ["🥛", "milk"], ["🍄", "mushroom"]],
+        N: [["👃", "nose"], ["🥜", "nut"], ["🪺", "nest"], ["📰", "newspaper"]],
+        O: [["🐙", "octopus"], ["🍊", "orange"], ["🦉", "owl"], ["🧅", "onion"]],
+        P: [["🐧", "penguin"], ["🍕", "pizza"], ["🦜", "parrot"], ["🥞", "pancake"]],
+        Q: [["👑", "queen"], ["❓", "question"], ["🪶", "quill"], ["🧵", "quilt"]],
+        R: [["🤖", "robot"], ["🌈", "rainbow"], ["🚀", "rocket"], ["🐇", "rabbit"]],
+        S: [["⭐", "star"], ["🐍", "snake"], ["🍓", "strawberry"], ["☀️", "sun"]],
+        T: [["🐯", "tiger"], ["🚜", "tractor"], ["🌮", "taco"], ["🌳", "tree"]],
+        U: [["☂️", "umbrella"], ["🦄", "unicorn"], ["⬆️", "up"], ["👕", "undershirt"]],
+        V: [["🎻", "violin"], ["🌋", "volcano"], ["🚐", "van"], ["🥦", "veggie"]],
+        W: [["🍉", "watermelon"], ["🐋", "whale"], ["⌚", "watch"], ["🪱", "worm"]],
+        X: [["🎷", "xylophone"], ["❌", "x mark"], ["🩻", "x-ray"], ["🦊", "fox"]],
+        Y: [["🪀", "yo-yo"], ["💛", "yellow"], ["🧶", "yarn"], ["🛥️", "yacht"]],
+        Z: [["🦓", "zebra"], ["🤐", "zipper"], ["⚡", "zap"], ["🧟", "zombie"]]
+      };
+      const countEmoji = ["🐸", "⭐", "🚗", "🍎", "🦋", "🚀", "🐠", "🌈", "🍓", "🎈"];
+
+      let smashed = 0;
+      let lastKey = "";
+      let repeatCount = 0;
+      let lastInteraction = 0;
+      let lastHandledInput = "";
+      let lastHandledAt = 0;
+      let hintTimer = window.setTimeout(() => hint.classList.add("is-hidden"), 5200);
+
+      function random(min, max) {
+        return Math.random() * (max - min) + min;
+      }
+
+      function choice(items) {
+        return items[Math.floor(Math.random() * items.length)];
+      }
+
+      function viewportPoint(preferredX, preferredY) {
+        const marginX = Math.min(120, window.innerWidth * 0.18);
+        const marginY = Math.min(120, window.innerHeight * 0.18);
+        return {
+          x: preferredX ?? random(marginX, window.innerWidth - marginX),
+          y: preferredY ?? random(marginY, window.innerHeight - marginY)
+        };
+      }
+
+      function spawnBubble(x, y) {
+        const bubble = document.createElement("div");
+        bubble.className = "bubble";
+        bubble.style.setProperty("--x", `${x}px`);
+        bubble.style.setProperty("--y", `${y}px`);
+        bubble.style.setProperty("--size", `${random(90, 220)}px`);
+        bubble.style.setProperty("--life", `${random(800, 1300)}ms`);
+        stage.append(bubble);
+        bubble.addEventListener("animationend", () => bubble.remove(), { once: true });
+      }
+
+      function spawnBurst(content, options = {}) {
+        const point = viewportPoint(options.x, options.y);
+        const burst = document.createElement("div");
+        const isEmoji = /\p{Extended_Pictographic}/u.test(content);
+        const size = options.size ?? (isEmoji ? random(108, 190) : random(170, 280));
+        const color = options.color ?? choice(colors);
+        burst.className = "burst";
+        burst.textContent = content;
+        burst.style.setProperty("--x", `${point.x}px`);
+        burst.style.setProperty("--y", `${point.y}px`);
+        burst.style.setProperty("--size", `${size}px`);
+        burst.style.setProperty("--font-size", `${size * (isEmoji ? 0.72 : 0.82)}px`);
+        burst.style.setProperty("--color", color);
+        burst.style.setProperty("--tilt", `${random(-18, 18)}deg`);
+        burst.style.setProperty("--life", `${options.life ?? random(1500, 2300)}ms`);
+        stage.append(burst);
+        spawnBubble(point.x, point.y);
+        burst.addEventListener("animationend", () => burst.remove(), { once: true });
+        return point;
+      }
+
+      function spawnLabel(text, x, y) {
+        const label = document.createElement("div");
+        label.className = "label";
+        label.textContent = text.toUpperCase();
+        label.style.setProperty("--x", `${x}px`);
+        label.style.setProperty("--y", `${y}px`);
+        label.style.setProperty("--offset", `${Math.min(138, window.innerHeight * 0.18)}px`);
+        stage.append(label);
+        label.addEventListener("animationend", () => label.remove(), { once: true });
+      }
+
+      function showLetter(letter, x, y) {
+        const point = spawnBurst(letter, { x, y, color: choice(colors), life: 1900 });
+        if (repeatCount > 0) {
+          const [emoji, word] = choice(letterEmoji[letter] || letterEmoji.S);
+          window.setTimeout(() => {
+            const emojiPoint = spawnBurst(emoji, {
+              x: point.x + random(-90, 90),
+              y: point.y + random(-70, 90),
+              size: random(130, 220),
+              life: 2100
+            });
+            spawnLabel(word, emojiPoint.x, emojiPoint.y);
+          }, 170);
+        }
+      }
+
+      function showNumber(number, x, y) {
+        const value = Number(number);
+        const point = spawnBurst(number, { x, y, color: choice(colors), life: 1900 });
+        if (repeatCount > 0 && value > 0) {
+          const emoji = choice(countEmoji);
+          for (let index = 0; index < value; index += 1) {
+            window.setTimeout(() => {
+              const angle = (Math.PI * 2 * index) / Math.max(value, 1) + random(-0.28, 0.28);
+              const radius = Math.min(190, 54 + value * 13);
+              spawnBurst(emoji, {
+                x: point.x + Math.cos(angle) * radius,
+                y: point.y + Math.sin(angle) * radius,
+                size: random(88, 145),
+                life: 2100
+              });
+            }, 240 + index * 260);
+          }
+        }
+      }
+
+      function showRandom(x, y) {
+        const letters = Object.keys(letterEmoji);
+        if (Math.random() > 0.35) {
+          showLetter(choice(letters), x, y);
+        } else {
+          showNumber(String(Math.floor(random(1, 10))), x, y);
+        }
+      }
+
+      function recordInput(key) {
+        const now = Date.now();
+        repeatCount = key === lastKey && now - lastInteraction < 2600 ? repeatCount + 1 : 0;
+        lastKey = key;
+        lastInteraction = now;
+        smashed += 1;
+        counter.textContent = `KEYS SMASHED: ${smashed}`;
+        hint.classList.add("is-hidden");
+        window.clearTimeout(hintTimer);
+      }
+
+      function handleInput(key, x, y) {
+        if (!key) return;
+        const normalized = key.length === 1 ? key.toUpperCase() : key;
+        const now = Date.now();
+        if (normalized === lastHandledInput && now - lastHandledAt < 90) return;
+        lastHandledInput = normalized;
+        lastHandledAt = now;
+        if (/^[A-Z]$/.test(normalized)) {
+          recordInput(normalized);
+          showLetter(normalized, x, y);
+        } else if (/^[0-9]$/.test(normalized)) {
+          recordInput(normalized);
+          showNumber(normalized, x, y);
+        }
+      }
+
+      window.addEventListener("keydown", (event) => {
+        if (event.repeat) return;
+        if (event.metaKey || event.ctrlKey || event.altKey) return;
+        if (event.key === "Escape") {
+          panel.classList.remove("is-open");
+          return;
+        }
+        handleInput(event.key);
+      });
+
+      stage.addEventListener("pointerdown", (event) => {
+        const now = Date.now();
+        if (now - lastInteraction < 90) return;
+        recordInput("tap");
+        showRandom(event.clientX, event.clientY);
+      });
+
+      helpButton.addEventListener("click", (event) => {
+        event.stopPropagation();
+        panel.classList.toggle("is-open");
+      });
+
+      closePanelButton.addEventListener("click", () => panel.classList.remove("is-open"));
+
+      fullscreenButton.addEventListener("click", async () => {
+        if (!document.fullscreenElement) {
+          await document.documentElement.requestFullscreen?.();
+        } else {
+          await document.exitFullscreen?.();
+        }
+      });
+
+      for (let i = 0; i < 22; i += 1) {
+        window.setTimeout(() => {
+          const point = viewportPoint();
+          spawnBubble(point.x, point.y);
+        }, i * 140);
+      }
+    </script>
+  </body>
+</html>
