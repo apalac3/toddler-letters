@@ -2,11 +2,12 @@
 <html lang="en">
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover" />
     <title>TODDLER LETTERS</title>
     <style>
       :root {
         color-scheme: dark;
+        --keyboard-height: clamp(210px, 33dvh, 292px);
         --bg: #080a18;
         --bg-2: #10133a;
         --text: #fff8df;
@@ -49,7 +50,10 @@
         text-transform: uppercase;
         user-select: none;
         -webkit-user-select: none;
-        touch-action: manipulation;
+        touch-action: none;
+        overscroll-behavior: none;
+        -webkit-text-size-adjust: 100%;
+        -webkit-touch-callout: none;
       }
 
       body::before,
@@ -91,9 +95,10 @@
 
       .stage {
         position: absolute;
-        inset: 0;
+        inset: 0 0 var(--keyboard-height);
         overflow: hidden;
-        cursor: pointer;
+        cursor: default;
+        touch-action: none;
       }
 
       .topbar {
@@ -165,7 +170,7 @@
         position: fixed;
         z-index: 10;
         right: 24px;
-        bottom: max(20px, env(safe-area-inset-bottom));
+        bottom: calc(var(--keyboard-height) + 14px);
         left: 24px;
         display: flex;
         justify-content: center;
@@ -193,6 +198,84 @@
         line-height: 1.3;
         text-align: center;
         backdrop-filter: blur(18px);
+      }
+
+      .keyboard {
+        position: fixed;
+        z-index: 18;
+        right: max(10px, env(safe-area-inset-right));
+        bottom: max(10px, env(safe-area-inset-bottom));
+        left: max(10px, env(safe-area-inset-left));
+        display: grid;
+        height: calc(var(--keyboard-height) - 16px);
+        padding: 10px;
+        border: 1px solid var(--panel-border);
+        border-radius: 8px;
+        background: rgba(8, 10, 24, 0.56);
+        box-shadow: 0 -16px 60px rgba(0, 0, 0, 0.2);
+        gap: 7px;
+        backdrop-filter: blur(18px);
+        touch-action: none;
+      }
+
+      .keyboard-row {
+        display: grid;
+        gap: 7px;
+      }
+
+      .keyboard-row[data-row="numbers"] {
+        grid-template-columns: repeat(10, minmax(0, 1fr));
+      }
+
+      .keyboard-row[data-row="top"] {
+        grid-template-columns: repeat(10, minmax(0, 1fr));
+      }
+
+      .keyboard-row[data-row="middle"] {
+        grid-template-columns: repeat(9, minmax(0, 1fr));
+        padding-inline: min(4vw, 34px);
+      }
+
+      .keyboard-row[data-row="bottom"] {
+        grid-template-columns: repeat(7, minmax(0, 1fr));
+        padding-inline: min(10vw, 86px);
+      }
+
+      .key {
+        display: grid;
+        min-width: 0;
+        min-height: 0;
+        padding: 0;
+        border: 1px solid rgba(255, 255, 255, 0.25);
+        border-radius: 8px;
+        background:
+          radial-gradient(circle at 35% 18%, rgba(255, 255, 255, 0.24), transparent 38%),
+          color-mix(in srgb, var(--key-color), #10133a 36%);
+        color: #100d1e;
+        box-shadow:
+          inset 0 -5px 0 rgba(0, 0, 0, 0.2),
+          0 8px 18px rgba(0, 0, 0, 0.2);
+        place-items: center;
+        font: inherit;
+        font-size: clamp(1.24rem, 4.6vw, 2.35rem);
+        font-weight: 1000;
+        line-height: 1;
+        text-shadow: 0 1px 0 rgba(255, 255, 255, 0.35);
+        touch-action: none;
+        transition:
+          transform 90ms ease,
+          filter 90ms ease,
+          box-shadow 90ms ease;
+        -webkit-tap-highlight-color: transparent;
+      }
+
+      .key:active,
+      .key.is-pressed {
+        filter: brightness(1.12) saturate(1.08);
+        box-shadow:
+          inset 0 -2px 0 rgba(0, 0, 0, 0.22),
+          0 5px 12px rgba(0, 0, 0, 0.18);
+        transform: translateY(3px) scale(0.97);
       }
 
       .burst {
@@ -270,7 +353,7 @@
       .panel {
         position: fixed;
         z-index: 30;
-        inset: auto 16px max(18px, env(safe-area-inset-bottom)) auto;
+        inset: auto 16px calc(var(--keyboard-height) + max(18px, env(safe-area-inset-bottom))) auto;
         display: none;
         width: min(380px, calc(100vw - 32px));
         padding: 18px;
@@ -403,6 +486,24 @@
         .hint-inner {
           border-radius: 8px;
         }
+
+        .keyboard {
+          gap: 6px;
+          padding: 8px;
+        }
+
+        .keyboard-row {
+          gap: 5px;
+        }
+
+        .keyboard-row[data-row="middle"],
+        .keyboard-row[data-row="bottom"] {
+          padding-inline: 0;
+        }
+
+        .key {
+          font-size: clamp(1.02rem, 6vw, 1.7rem);
+        }
       }
 
       @media (prefers-reduced-motion: reduce) {
@@ -434,13 +535,15 @@
       </div>
 
       <div class="hint" id="hint">
-        <div class="hint-inner">PRESS A LETTER ONCE FOR THE LETTER, TWICE FOR MATCHING EMOJI WORDS. PRESS A NUMBER TWICE TO COUNT WITH ONE EMOJI AT A TIME.</div>
+        <div class="hint-inner">TAP A KEY ONCE FOR THE LETTER OR NUMBER. TAP IT AGAIN FOR EMOJI WORDS OR COUNTING.</div>
       </div>
+
+      <nav class="keyboard" id="keyboard" aria-label="TOUCH LETTER AND NUMBER KEYS"></nav>
 
       <aside class="panel" id="panel" aria-label="PARENT NOTES">
         <h2>PARENT NOTES</h2>
         <p>
-          LETTERS SHOW THEMSELVES FIRST, THEN TODDLER-FRIENDLY EMOJI WORDS THAT START WITH THAT LETTER. NUMBERS SHOW THE NUMERAL FIRST, THEN COUNT OUT A MATCHING GROUP.
+          TAP THE ON-SCREEN KEYS. LETTERS SHOW THEMSELVES FIRST, THEN TODDLER-FRIENDLY EMOJI WORDS THAT START WITH THAT LETTER. NUMBERS SHOW THE NUMERAL FIRST, THEN COUNT OUT A MATCHING GROUP.
         </p>
         <div class="panel-actions">
           <button id="fullscreenButton" type="button">FULLSCREEN</button>
@@ -454,6 +557,7 @@
       const counter = document.querySelector("#counter");
       const hint = document.querySelector("#hint");
       const panel = document.querySelector("#panel");
+      const keyboard = document.querySelector("#keyboard");
       const helpButton = document.querySelector("#helpButton");
       const closePanelButton = document.querySelector("#closePanelButton");
       const fullscreenButton = document.querySelector("#fullscreenButton");
@@ -495,7 +599,14 @@
       let lastInteraction = 0;
       let lastHandledInput = "";
       let lastHandledAt = 0;
+      let lastTouchEnd = 0;
       let hintTimer = window.setTimeout(() => hint.classList.add("is-hidden"), 5200);
+      const keyboardRows = [
+        { name: "numbers", keys: "1234567890" },
+        { name: "top", keys: "QWERTYUIOP" },
+        { name: "middle", keys: "ASDFGHJKL" },
+        { name: "bottom", keys: "ZXCVBNM" }
+      ];
 
       function random(min, max) {
         return Math.random() * (max - min) + min;
@@ -508,9 +619,11 @@
       function viewportPoint(preferredX, preferredY) {
         const marginX = Math.min(120, window.innerWidth * 0.18);
         const marginY = Math.min(120, window.innerHeight * 0.18);
+        const keyboardTop = keyboard.getBoundingClientRect().top || window.innerHeight;
+        const maxY = Math.max(marginY, keyboardTop - marginY);
         return {
           x: preferredX ?? random(marginX, window.innerWidth - marginX),
-          y: preferredY ?? random(marginY, window.innerHeight - marginY)
+          y: preferredY ?? random(marginY, maxY)
         };
       }
 
@@ -593,15 +706,6 @@
         }
       }
 
-      function showRandom(x, y) {
-        const letters = Object.keys(letterEmoji);
-        if (Math.random() > 0.35) {
-          showLetter(choice(letters), x, y);
-        } else {
-          showNumber(String(Math.floor(random(1, 10))), x, y);
-        }
-      }
-
       function recordInput(key) {
         const now = Date.now();
         repeatCount = key === lastKey && now - lastInteraction < 2600 ? repeatCount + 1 : 0;
@@ -629,6 +733,40 @@
         }
       }
 
+      function buildKeyboard() {
+        keyboardRows.forEach((row) => {
+          const rowElement = document.createElement("div");
+          rowElement.className = "keyboard-row";
+          rowElement.dataset.row = row.name;
+
+          [...row.keys].forEach((key, index) => {
+            const button = document.createElement("button");
+            button.className = "key";
+            button.type = "button";
+            button.textContent = key;
+            button.ariaLabel = `KEY ${key}`;
+            button.dataset.key = key;
+            button.style.setProperty("--key-color", colors[index % colors.length]);
+            rowElement.append(button);
+          });
+
+          keyboard.append(rowElement);
+        });
+      }
+
+      function playKeyFromButton(button) {
+        const key = button.dataset.key;
+        const rect = button.getBoundingClientRect();
+        const stageRect = stage.getBoundingClientRect();
+        const x = rect.left + rect.width / 2;
+        const minY = stageRect.top + Math.min(160, stageRect.height * 0.28);
+        const maxY = stageRect.bottom - Math.min(100, stageRect.height * 0.18);
+        const y = random(minY, Math.max(minY, maxY));
+        button.classList.add("is-pressed");
+        window.setTimeout(() => button.classList.remove("is-pressed"), 120);
+        handleInput(key, x, y);
+      }
+
       window.addEventListener("keydown", (event) => {
         if (event.repeat) return;
         if (event.metaKey || event.ctrlKey || event.altKey) return;
@@ -640,11 +778,36 @@
       });
 
       stage.addEventListener("pointerdown", (event) => {
-        const now = Date.now();
-        if (now - lastInteraction < 90) return;
-        recordInput("tap");
-        showRandom(event.clientX, event.clientY);
+        event.preventDefault();
+        spawnBubble(event.clientX, event.clientY);
       });
+
+      keyboard.addEventListener("pointerdown", (event) => {
+        const button = event.target.closest(".key");
+        if (!button) return;
+        event.preventDefault();
+        playKeyFromButton(button);
+      });
+
+      document.addEventListener(
+        "touchend",
+        (event) => {
+          const now = Date.now();
+          if (now - lastTouchEnd < 360) {
+            event.preventDefault();
+          }
+          lastTouchEnd = now;
+        },
+        { passive: false }
+      );
+
+      document.addEventListener(
+        "gesturestart",
+        (event) => {
+          event.preventDefault();
+        },
+        { passive: false }
+      );
 
       helpButton.addEventListener("click", (event) => {
         event.stopPropagation();
@@ -660,6 +823,8 @@
           await document.exitFullscreen?.();
         }
       });
+
+      buildKeyboard();
 
       for (let i = 0; i < 22; i += 1) {
         window.setTimeout(() => {
